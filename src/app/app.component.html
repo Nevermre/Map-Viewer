@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+</head>
+
+<!-- Toolbar -->
+
+<body>
+  <div class="toolbar" role="banner" style="width: 100%;">
+    <lib-wc-map-viewer *ngIf="this.paramsMapViewer" [params]="paramsMapViewer"
+      (highlightedAreaEvent)="printHighlightedInfo($event)" style="width: 100%;" [parsedFiles]="files"
+      [editLayer]="layerEdit"
+      [zoomBoundingBox]="boundingBox"
+      [requestSelectedPoints]="request"
+      (selectedPoints)="printSelectedPoints($event)"
+      (drawedLayer)="printDrawedLayer($event)"
+      (deletedLayer)="printDeletedLayer($event)"
+      [requestShapefile]="requestShape"
+      (shapefile)="printShapefile($event)"
+      [applyFilter]="applyFilter"
+      [changeEnabledControl]="changecontrol"
+      (mapLoaded) = "printMapLoad($event)"
+      [insertDrawedLayer] = "insertDrawedLayer"
+      [selectPoints]="selectpoints"
+      ></lib-wc-map-viewer>
+    <input type="file" (change)="parseShape($event)">
+    <!-- <button (click)="parseShape(file)">Enviar</button> -->
+  </div>
+  <div>
+    <label for="estadoSelect">Selecione o Estado:</label>
+    <select id="estadoSelect" [(ngModel)]="selectedEstado" (change)="onSelectEstado()" [compareWith]="compareFilters">
+      <option *ngFor="let estado of estados" [value]="estado.value">{{ estado.value }}</option>
+    </select>
+  </div>
+
+  <div>
+    <label for="municipioSelect">Selecione o Município:</label>
+    <select id="municipioSelect" [(ngModel)]="selectedMunicipio" (change)="onSelectMunicipio()"
+      [compareWith]="compareFilters">
+      <option *ngFor="let municipio of municipios" [value]="municipio.value">{{ municipio.value }}</option>
+    </select>
+  </div>
+  <button (click)="test()">Buscar</button>
+  <button (click)="updateFiles()">Inserir ShapeFiles</button>
+  <button (click)="requestpoints()">Mostrar Pontos selecionados</button>
+  <button (click)="editLayer()">Edit camada teste</button>
+  <button (click)="deleteLayer()">Deletar camada teste</button>
+  <button (click)="requestShapeFile()">Shapefile</button>
+  <button (click)="applyFilterOnLayer()">Aplicar Filtro</button>
+  <button (click)="removeFilterOnLayer()">Remover Filtro</button>
+  <button (click)="removeSelectInteraction()">Remover Interação de seleção</button>
+  <button (click)="insertDrawedlayer()">add drawed layer</button>
+
+
+  <ul>
+    <li *ngFor="let point of listOfPoints">{{point.flatCoordinates[0]}} , {{point.flatCoordinates[1]}}</li>
+  </ul>
+</body>

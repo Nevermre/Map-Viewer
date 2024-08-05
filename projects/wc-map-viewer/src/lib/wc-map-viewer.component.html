@@ -1,0 +1,452 @@
+<div id="fullscreen" class="fullscreen" style="height:500px;" #fullscreen>
+  <div id="control" [ngStyle]="controlStyle" *ngIf="!loading " (cdkDragStarted)="handleDragStart($event)" class="control"
+    style="background-color: white;" cdkDrag [cdkDragDisabled]="isBlockDraggable" cdkDragBoundary=".fullscreen"
+    #control>
+
+    <div class="card">
+      <div class="flex justify-content-around flex-wrap card-container indigo-container">
+        <div class="flex align-items-center justify-content-center"></div>
+        <div id="dropdownButton" class="dropdownButton flex align-items-center justify-content-center"
+          [ngStyle]="{'max-width': widthMap}" (click)="expandDropDown($event)">Camadas {{expandControl ? '&#9650;' :
+          '&#9660;'}}</div>
+        <p-button class="flex align-items-center justify-content-center" icon="pi pi-info-circle"
+          styleClass="p-button-secondary p-button-rounded p-button-text p-button-lg" (click)="showDialog()" title="Sobre a utilização"></p-button>
+
+      </div>
+    </div>
+
+
+    <div id="layertree" (mouseover)="isBlockDraggable=true" (mouseover)="updateWidthLayerTree()"
+      (mouseout)="isBlockDraggable=false" pResizable class="dropdown-content"
+      [ngStyle]="{'display':'block','visibility': expandControl && !searching ? 'visible' : 'hidden', 'max-width': widthMap,'max-height': heightMap}"
+      #layertree>
+      <p-fieldset legend="Mapa Base" [toggleable]="true" [collapsed]="true">
+        <ul class="list-items">
+          <ng-container *ngFor="let baseMap of params.baseMap">
+
+            <li *ngIf='baseMap && baseMap.type !== "bing" ' class="list-item-layer">
+              <div style="padding-right: 7px;">
+                <input title = "Escolher como mapa base"  type="radio" (change)="setActiveBaseMap($event, baseMap)"  [(ngModel)]="selectedBaseMapType"
+                  [value]="baseMap.type" [id]="'radioButton_'+baseMap.type">
+              </div>
+              <span title={{baseMap.title}} class="item-title drag"
+                [style.font-size]="controlStyle.fontSize" [style.font-weight]="baseMap.primary ? 'bold' : 'normal'"
+                [style.cursor]="'pointer'">Openstreet Map</span>
+              <div class="break">
+
+              </div>
+            </li>
+            <li *ngIf='baseMap && baseMap.type === "bing"' class="list-item-layer"
+              style="align-items:center;padding-bottom:0;">
+              <div style="padding-right: 7px;">
+                <input title = "Escolher como mapa base" type="radio" (change)="setActiveBaseMap($event, baseMap)" [(ngModel)]="selectedBaseMapType"
+                  [value]="baseMap.type" [id]="'radioButton_'+baseMap.type">
+              </div>
+              <span title="Bing" class="item-title" [style.font-size]="controlStyle.fontSize"
+                [style.font-weight]="'normal'" style="white-space: normal;cursor: pointer;">Bing:</span>
+              <p-dropdown class="dropdown-option" [baseZIndex]="99999" appendTo="body" id="drop-base-mapdown"
+                [options]="styles" [(ngModel)]="selectedStyle" optionLabel="description" optionValue="value"
+                [style.width]="'100%'" [style.font-size]="'13px'" (onChange)="onBaseMapChange(selectedStyle,baseMap)"></p-dropdown>
+            </li>
+          </ng-container>
+          <li class="list-item-layer"
+              style="align-items:center;padding-bottom:0; justify-content: flex-start;">
+              <div style="padding-right: 7px;">
+                <input title = "Escolher como mapa base" type="radio" (change)="setActiveBaseMap($event, null)" [(ngModel)]="selectedBaseMapType"
+                  [value]="null" [id]="'radioButton_null'">
+              </div>
+              <span title="Nenhum" class="item-title" [style.font-size]="controlStyle.fontSize"
+                [style.font-weight]="'normal'" style="white-space: normal;cursor: pointer;">Nenhum</span>
+
+            </li>
+        </ul>
+      </p-fieldset>
+
+      <p-fieldset [style]="{'margin-top':'10px'}" *ngIf="params.rasters" legend="Camadas Raster" [toggleable]="true" [collapsed]="true">
+        <ul class="list-items">
+          <ng-container *ngFor="let raster of params.rasters">
+            <li  class="list-item-layer"
+              style="align-items:center;padding-bottom:0;">
+              <span title="Bing" class="item-title" [style.font-size]="controlStyle.fontSize"
+                [style.font-weight]="'normal'" style="white-space: normal;cursor: pointer;">{{raster.title}}</span>
+                <div class="breakRaster">
+                  <label class="control-label" style="flex: 1; ">
+                    <input (mouseout)="isBlockDraggable=false" title="Opacidade" [(ngModel)]="raster.opacity"
+                      (mouseover)="isBlockDraggable=true" class="opacity" type="range" min="0" max="1" step="0.01"
+                      (input)="onChangeOpacity($event,raster.ref)"
+                      style="width: 80%;"/>
+                  </label>
+                  <span  title="Tornar camada visível" class="visibilityIcon"><i
+                      [ngClass]="[raster.visible ? 'pi pi-eye' : 'pi pi-eye-slash']"
+                      style=" cursor:pointer;flex: 1;" (click)="visibilityChange($event,raster)"></i></span>
+
+                  <p-dropdown class="dropdown-option" [baseZIndex]="99999" appendTo="body" id="drop-base-mapdown"
+                  [options]="raster.layerIdentifier || []" [(ngModel)]="raster.imagerySet" optionLabel="description" optionValue="identifier"
+                  [style.width]="'50px'"
+                  [style.flex]="'1'" (onChange)="onRasterChange(raster,raster.imagerySet)"></p-dropdown>
+                </div>
+
+            </li>
+            <!--<li *ngIf='baseMap && baseMap.type !== "bing" ' class="list-item-layer">
+              <span title={{baseMap.title}} class="item-title drag"
+                [style.font-size]="controlStyle.fontSize" [style.font-weight]="baseMap.primary ? 'bold' : 'normal'"
+                [style.cursor]="'pointer'">{{baseMap.title}}</span>
+              <div class="break">
+                <label class="control-label">
+                  <input (mouseout)="isBlockDraggable=false" title="Opacidade" [(ngModel)]="baseMap.opacity"
+                    (mouseover)="isBlockDraggable=true" class="opacity" type="range" min="0" max="1" step="0.01"
+                    (input)="onChangeOpacity($event,baseMap.ref)" />
+                </label>
+                <span  title="Tornar camada visível" class="visibilityIcon"><i
+                    [ngClass]="[baseMap.visible ? 'pi pi-eye' : 'pi pi-eye-slash']"
+                    style="margin-left:10px; cursor:pointer" (click)="visibilityChange($event,baseMap.ref)"></i></span>
+                <span *ngIf="!(baseMap.geoserverType && baseMap.geoserverType === 'raster')" title="Ir para camada" class="visibilityIcon"><i ngClass="fa fa-solid fa-crosshairs fa-lg"
+                    style="margin-left:10px; cursor:pointer" (click)="zoomToLayer($event,baseMap)"></i></span>
+
+                <span *ngIf="!(baseMap.geoserverType && baseMap.geoserverType === 'raster')" title="Exportar camada" class="visibilityIcon"><i class="pi pi-save"
+                    style="margin-left:10px; cursor:pointer" (click)="exportShapefile($event,baseMap)"></i></span>
+
+              </div>
+            </li>-->
+          </ng-container>
+        </ul>
+      </p-fieldset>
+
+
+      <ng-container *ngFor="let group of params.layers.availableGroups">
+        <ng-container *ngIf="(this.params.layers.sources | FilterPipe:{groupId:group.id}:false)?.length " >
+          <p-divider align="left">
+            <b>{{group.title}}</b>
+          </p-divider>
+          <ul  class="list-items" >
+            <ng-container *ngFor="let subGroup of group.subgroups">
+              <p-fieldset *ngIf="(this.params.layers.sources | FilterPipe:{groupId:group.id,subGroup:subGroup.title}:false)?.length " legend='{{subGroup.title}}'
+                [style]="{'margin-top':'10px'}" legend="Camadas" [toggleable]="true" [collapsed]="true">
+                <li *ngFor="let layer of (this.params.layers.sources | FilterPipe:{groupId:group.id,subGroup:subGroup.title}:false);let index = index"
+                  class="list-item-layer">
+                  <!--<input id="visible0" class="visible" type="checkbox" (change)="onVisibilityChange($event,layer.ref)"/>-->
+                  <div style="padding-right: 7px;">
+                    <input title = "Tornar camada ativa" [ngStyle]="{'visibility' : (layer.type !== 'geoJson' && expandControl) ? 'visible' : 'hidden'}"  type="radio" (click)="setActiveLayer($event, layer)" [(ngModel)]="layerSelectedRadio"
+                      [value]="layer.ref.ol_uid" [id]="'radioButton_' + layer.ref.ol_uid">
+                  </div>
+                  <label for="{{ 'radioButton_' + layer.ref.ol_uid }}" title={{layer.title}} class="item-title "
+
+                    [style.font-size]="controlStyle.fontSize"
+                    [style.font-weight]="layer.primary ? 'bold' : 'normal'">{{layer.title}}</label>
+
+                  <div class="break">
+                    <label class="control-label">
+                      <input (mouseout)="isBlockDraggable=false" title="Opacidade" [(ngModel)]="layer.opacity"
+                        (mouseover)="isBlockDraggable=true" class="opacity" type="range" min="0" max="1" step="0.01"
+                        (input)="onChangeOpacity($event,layer.ref)" />
+                    </label>
+                    <span title="Tornar camada visível" class="visibilityIcon"><i
+                        [ngClass]="[layer.visible ? 'pi pi-eye' : 'pi pi-eye-slash']"
+                        style="margin-left:10px; cursor:pointer" (click)="visibilityChange($event,layer)"></i></span>
+                    <span title="Ir para camada" class="visibilityIcon"><i ngClass="fa fa-solid fa-crosshairs fa-lg"
+                        style="margin-left:10px; cursor:pointer" (click)="zoomToLayer($event,layer)"></i></span>
+                    <span title="Exportar camada" class="visibilityIcon"><i class="pi pi-save"
+                        style="margin-left:10px; cursor:pointer" (click)="exportShapefile($event,layer)"></i></span>
+                  </div>
+                </li>
+              </p-fieldset>
+
+            </ng-container>
+          </ul>
+        </ng-container>
+      </ng-container>
+
+      <!--
+      <p-divider align="left">
+        <b>Base de Referência</b>
+      </p-divider>
+      <ul cdkDropList class="list-items" (cdkDropListDropped)="drop($event,'referenceBase')">
+        <ng-container *ngFor="let group of params.layers.availableGroups">
+          <p-fieldset *ngIf="((this.params.layers.referenceBase || []) | searchPipe:'group':group:'').length"
+            legend='{{group}}' [style]="{'margin-top':'10px'}" [toggleable]="true" [collapsed]="true">
+            <li
+              *ngFor="let layer of ((this.params.layers.referenceBase || []) | searchPipe:'group':group:'');let index = index"
+              class="list-item-layer">
+              <div style="padding-right: 7px;">
+                <input title = "Tornar camada ativa" type="radio" (click)="setActiveLayer($event, layer)" [(ngModel)]="layerSelectedRadio"
+                [value]="layer.ref.ol_uid" [id]="'radioButton_' + layer.ref.ol_uid">
+              </div>
+              <label for="{{ 'radioButton_' + layer.ref.ol_uid }}" title={{layer.title}} class="item-title drag" cdkDrag
+                (mousedown)="dragTouchEndEvent(this.params.layers.referenceBase,layer,group)"
+                [style.font-size]="controlStyle.fontSize"
+                [style.font-weight]="layer.primary ? 'bold' : 'normal'">{{layer.title}}</label>
+              <div class="break">
+                <label class="control-label">
+                  <input (mouseout)="isBlockDraggable=false" title="Opacidade" [(ngModel)]="layer.opacity"
+                    (mouseover)="isBlockDraggable=true" class="opacity" type="range" min="0" max="1" step="0.01"
+                    (input)="onChangeOpacity($event,layer.ref)" />
+                </label>
+                <span title="Tornar camada visível" class="visibilityIcon"><i
+                    [ngClass]="[layer.visible ? 'pi pi-eye' : 'pi pi-eye-slash']"
+                    style="margin-left:10px; cursor:pointer" (click)="visibilityChange($event,layer.ref)"></i></span>
+                <span title="Ir para camada" class="visibilityIcon"><i ngClass="fa fa-solid fa-crosshairs fa-lg"
+                    style="margin-left:10px; cursor:pointer" (click)="zoomToLayer($event,layer)"></i></span>
+                <span title="Exportar camada" class="visibilityIcon"><i class="pi pi-save"
+                    style="margin-left:10px; cursor:pointer" (click)="exportShapefile($event,layer)"></i></span>
+              </div>
+            </li>
+          </p-fieldset>
+        </ng-container>
+      </ul>
+      -->
+      <ng-container *ngIf="this.params.layers.drawedLayers && this.params.layers.drawedLayers.length > 0">
+        <p-divider align="left">
+          <b>Marcações</b>
+        </p-divider>
+        <ul cdkDropList class="list-items" (cdkDropListDropped)="drop($event)">
+          <ng-container >
+            <p-fieldset  legend='Inconsistencias'
+              [style]="{'margin-top':'10px'}" legend="Camadas" [toggleable]="true" [collapsed]="true">
+              <li *ngFor="let layer of this.params.layers.drawedLayers;let index = index"
+                class="list-item-layer">
+                <!--<input id="visible0" class="visible" type="checkbox" (change)="onVisibilityChange($event,layer.ref)"/>-->
+                <div style="padding-right: 7px;" *ngIf="layer.ref">
+                  <input title = "Tornar camada ativa" [ngStyle]="{'visibility' : (layer.type !== 'geoJson' && expandControl) ? 'visible' : 'hidden'}"  type="radio" (click)="setActiveLayer($event, layer)" [(ngModel)]="layerSelectedRadio"
+                    [value]="layer.ref && layer.ref.ol_uid" [id]="'radioButton_' + layer.ref.ol_uid">
+                </div>
+                <label for="{{ 'radioButton_' + layer.ref.ol_uid }}" title={{layer.title}} class="item-title drag" cdkDrag
+
+                  [style.font-size]="controlStyle.fontSize"
+                  [style.font-weight]="layer.primary ? 'bold' : 'normal'">{{layer.title}}</label>
+
+                <div class="break">
+                  <label class="control-label">
+                    <input (mouseout)="isBlockDraggable=false" title="Opacidade" [(ngModel)]="layer.opacity"
+                      (mouseover)="isBlockDraggable=true" class="opacity" type="range" min="0" max="1" step="0.01"
+                      (input)="onChangeOpacity($event,layer.ref)" />
+                  </label>
+                  <span title="Tornar camada visível" class="visibilityIcon"><i
+                      [ngClass]="[layer.visible ? 'pi pi-eye' : 'pi pi-eye-slash']"
+                      style="margin-left:10px; cursor:pointer" (click)="visibilityChange($event,layer)"></i></span>
+                  <span title="Ir para camada" class="visibilityIcon"><i ngClass="fa fa-solid fa-crosshairs fa-lg"
+                      style="margin-left:10px; cursor:pointer" (click)="zoomToLayer($event,layer)"></i></span>
+                  <span title="Exportar camada" class="visibilityIcon"><i class="pi pi-save"
+                      style="margin-left:10px; cursor:pointer" (click)="exportShapefile($event,layer)"></i></span>
+                </div>
+              </li>
+            </p-fieldset>
+          </ng-container>
+        </ul>
+      </ng-container>
+
+    </div>
+  </div>
+  <div id="mapViewer" class="mapa" style="height: 100%;" #mapViewer></div>
+
+  <div *ngIf="popupShow" id="popup" class="ol-popup" #popup>
+    <a href="javascript: void(0)" (click)="closePopup($event)" id="popup-closer" class="ol-popup-closer"></a>
+    <div id="map-popup-content">
+      <div class="header">
+        <h3 *ngIf="activeLayer">{{activeLayer.title}}</h3>
+        <h3 *ngIf="!activeLayer">Informações:</h3>
+      </div>
+      <ul *ngFor="let info of infos; let i = index;" style="padding-left:0;">
+        <li *ngFor="let infoDisplay of info.feature" class="info-item">
+          <div>{{infoDisplay.displayName ? infoDisplay.displayName + ':' : '' }}
+            {{infoDisplay.value}}
+          </div><br>
+
+        </li>
+
+
+        <a *ngIf="info.layer" title="Deletar camada" href="javascript: void(0)" (click)="deleteLayer($event,info.layer)" id="popup-delete" class="ol-popup-delete pi pi-trash"></a>
+        <hr style="margin-top: 25px;" *ngIf="i !== infos.length-1">
+      </ul>
+    </div>
+  </div>
+  <!--<div class="base-map-container" *ngIf = 'params.baseMap && params.baseMap.type === "bing"'>
+
+    <div class="drop-base-map-wrapper">
+      <button class="btn-base-map" title="Selecionar camada base" data-target="#drop-base-mapdown" (click)="showBaseMapControl()"><i class = 'layer-icon' data-target="#drop-base-mapdown" data-target="#drop-base-mapdown"></i></button>
+      <p-dropdown *ngIf="baseMapControl" class="drop-base-map-menu drop-base-mapdown active" id="drop-base-mapdown" [options]="styles" [(ngModel)]="selectedStyle"
+      optionLabel="description" optionValue="value"  (onChange)="onBaseMapChange(selectedStyle)"></p-dropdown>
+    </div>
+  </div>-->
+
+  <div cdkDrag class="card flex justify-content-center" style="position: absolute;bottom:80px">
+    <p-tieredMenu   class="menuItens" [model]="itemsOptionsMap" #tiered></p-tieredMenu>
+  </div>
+
+  <div #legendArea style="position: absolute;bottom:0;z-index:10000"></div>
+  <div class="card flex justify-content-center" class="legend" name="legend">
+    <p-dialog header="Legenda" [appendTo]="legendArea" [(visible)]="legendVisible"
+      [style]="{width: '20vw', height: '400px'}" [maximizable]="true">
+      <ul cdkDropList class="list-items" (cdkDropListDropped)="drop($event)">
+        <li *ngFor="let layer of this.params.rasters;let index = index" style="display: inline-block;
+        flex-direction: row;
+        justify-content: flex-start;
+        padding: 1rem;
+        width: 100%;">
+          <span title={{layer.title}} style="white-space: normal; width: 100%;"
+            [style.font-size]="controlStyle.fontSize">{{layer.title}}</span>
+          <div style="margin-top: 5px;"><img *ngIf="layer.legendUrl" src={{layer.legendUrl}} /></div>
+
+          <div *ngIf="layer.type === 'geoJson'" [ngStyle]="createLegendImage(layer.fillColor, layer.strokeColor)"></div>
+
+        </li>
+        <li *ngFor="let layer of this.params.layers.sources;let index = index" style="display: inline-block;
+        flex-direction: row;
+        justify-content: flex-start;
+        padding: 1rem;
+        width: 100%;">
+          <span title={{layer.title}} style="white-space: normal; width: 100%;"
+            [style.font-size]="controlStyle.fontSize">{{layer.title}}</span>
+          <div style="margin-top: 5px;"><img *ngIf="layer.legendUrl" src={{layer.legendUrl}} /></div>
+
+          <div *ngIf="layer.type === 'geoJson'" [ngStyle]="createLegendImage(layer.fillColor, layer.strokeColor)"></div>
+
+        </li>
+        <li *ngFor="let layer of this.params.layers.referenceBase;let index = index" style="display: inline-block;
+        flex-direction: row;
+        justify-content: flex-start;
+        padding: 1rem;
+        width: 100%;">
+          <span title={{layer.title}} style="white-space: normal; width: 100%;"
+            [style.font-size]="controlStyle.fontSize">{{layer.title}}</span>
+          <div style="margin-top: 5px;"><img *ngIf="layer.legendUrl" src={{layer.legendUrl}} /></div>
+
+          <div *ngIf="layer.type === 'geoJson'" [ngStyle]="createLegendImage(layer.fillColor, layer.strokeColor)"></div>
+
+        </li>
+      </ul>
+    </p-dialog>
+  </div>
+
+  <div #gifInfo class="gifDialog"></div>
+  <p-dialog  header="Exemplo de utilização" [(visible)]="visibleDialogGif" [appendTo]="gifInfo" [resizable]="false" >
+    <img id="imagemgif" style="width: 450px;"  alt="Exemplo de GIF animado">
+  </p-dialog>
+
+  <div #modalArea style="position: absolute;z-index:10000"></div>
+  <p-dialog [dismissableMask]="false" [closable] ='false' [focusTrap]="true" [position]="'center'" header="Header" [appendTo]="gifInfo" [draggable]="false" [resizable]="false" [modal]="true" [(visible)]="confirmDraw" [style]="{ width: '350px' }">
+    <ng-template pTemplate="header">
+      <span class="text-xl font-bold" >Adicionar Informações</span>
+      <p-button icon="pi pi-times" (click)="cancelDraw()" styleClass="p-button-text"></p-button>
+
+    </ng-template>
+    <div class="flex flex-column gap-2 "style="padding:'30px'" [formGroup]="formInfo">
+      <label htmlFor="title">Título</label>
+      <input pInputText id="title" formControlName="title" />
+      <label htmlFor="description">Descrição</label>
+      <textarea rows="5" cols="30" pInputTextarea  id="description" formControlName="description" ></textarea>
+      <ng-container *ngIf="selectedTool === 'Coordenadas'">
+        <label htmlFor="title">Latitude  (Y) <i  class="pi pi-question-circle" style="color: #6B7280" pTooltip="Inserir a latitude no formato grau decimal (-90° a 90°) ex: -54.645245" tooltipPosition="right" ></i></label>
+
+        <input pInputText id="title" formControlName="latitude" [placeholder]="'-__.____'" mask="separator.6"
+        [allowNegativeNumbers]="true"
+        thousandSeparator=""
+        decimalSeparator="."  [min]="-90"
+        [max]="90"
+        minMax />
+        <label htmlFor="title">Longitude (X) <i  class="pi pi-question-circle" style="color: #6B7280" pTooltip="Inserir a longitude no formato grau decimal (-180° a 180°) ex: -54.645245" tooltipPosition="right" ></i></label>
+        <input pInputText id="title" formControlName="longitude" [placeholder]="'-__.____'"
+        mask="separator.6"
+        [allowNegativeNumbers]="true"
+        thousandSeparator=""
+        decimalSeparator="."  [min]="-180"
+        [max]="180"
+        minMax />
+
+
+      </ng-container>
+      <ng-container *ngIf="params.controls.enableIconSelection && (selectedTool === 'Coordenadas' ||selectedTool === 'Marcação') ">
+        <label htmlFor="title">Ícone</label>
+        <p-dropdown class="dropdown-option" [baseZIndex]="99999" appendTo="body" id="drop-base-mapdown"
+          [options]="optionsIcons" formControlName="selectedIcon" optionLabel="label" optionValue="key"
+          [style.width]="'100%'" [style.font-size]="'13px'" ></p-dropdown>
+      </ng-container>
+
+
+    </div>
+    <ng-template pTemplate="footer">
+      <p-button icon="pi pi-check" (click)="addDrawedFeatureInfo()" label="Ok" styleClass="p-button-text"></p-button>
+    </ng-template>
+  </p-dialog>
+
+  <div #modalSearchArea style="position: absolute;z-index:10000">
+
+  <p-dialog [dismissableMask]="false" [closable] ='true' [focusTrap]="true" [position]="'center'" header="Header" [appendTo]="gifInfo" [draggable]="true" [resizable]="true" [modal]="true" [(visible)]="searching" [style]="{ width: '450px' }">
+    <ng-template pTemplate="header">
+      <span class="text-xl font-bold" >Pesquisar</span>
+    </ng-template>
+    <ng-container *ngIf="!(activeLayer)">
+      <h4>Selecione uma camada no controlador de camadas antes de realizar uma pesquisa.</h4>
+    </ng-container>
+    <ng-container *ngIf="activeLayer && !(searchLayer && searchLayer.searchField && searchLayer.layerUrl)">
+      <h4>Essa camada não é pesquisável, favor selecionar outra camada no controlador de camadas.</h4>
+    </ng-container>
+    <ng-container *ngIf="activeLayer && searchLayer && searchLayer.searchField && searchLayer.layerUrl">
+
+    <p-table
+        #dt1
+        [value]="searchData"
+        [rows]="5"
+        [showCurrentPageReport]="true"
+        [rowsPerPageOptions]="[5]"
+        [loading]="searchLoading"
+        [paginator]="true"
+        currentPageReportTemplate="Mostrando {first} até {last} de {totalRecords} registros."
+    >
+        <ng-template pTemplate="caption">
+            <div class="flex flex-column gap-2">
+                <span class="p-input-icon-left mr-auto" aria-describedby="minimun-length">
+                    <i class="pi pi-search"></i>
+                    <input pInputText [formControl]="searchText"  type="text" (change)="likeFilter($event.target)"  placeholder="Pesquisar registro." />
+                  </span>
+                  <small id="minimun-length" *ngIf="!searchText.valid">Digite pelo menos 3 caracteres.</small>
+            </div>
+        </ng-template>
+        <ng-template pTemplate="header">
+            <tr>
+                <th style="min-width:15rem">
+                    <div class="flex align-items-center">
+                      {{searchLayer.searchField?.displayName}}
+                    </div>
+                </th>
+                <th style="min-width:15rem">
+                  <div class="flex align-items-center">
+                    Visualizar
+                  </div>
+              </th>
+
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-data>
+            <tr>
+                <td>
+                    {{ data.properties }}
+                </td>
+                <td>
+                  <span title="Visualizar" class="visibilityIcon"><i
+                    [ngClass]="'pi pi-eye'"
+                    style="margin-left:10px; cursor:pointer" (click)="zoomOnBoundingBox(data.bbox)"></i></span>
+              </td>
+
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="7" *ngIf="searchFailed">Ocorreu um erro durante a busca.</td>
+                <td colspan="7" *ngIf="!searchFailed">Nenhum Resultado, tente pesquisar por algum registro.</td>
+            </tr>
+        </ng-template>
+
+    </p-table>
+
+    </ng-container>
+
+
+
+  </p-dialog>
+
+</div>
+<div id="mouse-position" #mousePosition></div>
+<a #imageDownload id="image-download" download="map.png"></a>
+<div #popupPoint class="popup ol-popup" [hidden]="true"></div>
+
+

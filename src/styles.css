@@ -1,0 +1,346 @@
+/* You can add global styles to this file, and also import other style files */
+@import "~ol-layerswitcher/dist/ol-layerswitcher.css";
+@import "~primeicons/primeicons.css";
+@import "~font-awesome/css/font-awesome.css";
+@import "~primeng/resources/primeng.css";
+@import "~primeng/resources/themes/lara-light-teal/theme.css";
+@import "~primeflex/primeflex.css";
+@import "~ol/ol.css";
+
+.control{
+  border-radius: 4px;
+}
+.list-items{
+  padding:0
+}
+
+.fullscreen:-webkit-full-screen {
+  height: 100%;
+  margin: 0;
+}
+
+.fullscreen:fullscreen {
+  height: 100%;
+}
+
+.fullscreen {
+  margin-bottom: 10px;
+  width: 100%;
+  height:500px;
+  display: flex;
+  position:relative;
+}
+.mapa {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+}
+.mapa .ol-zoom {
+  top: 3.5em;
+  right: 0.5em;
+  left: unset;
+}
+
+.mapa:fullscreen {
+  height: 100%;
+}
+.mapa:-webkit-full-screen {
+  height: 100%  !important;
+  margin: 0;
+}
+.mapa .ol-rotate {
+  top: 3em;
+}
+
+.control {
+  display: inline-block;
+  width: 350px;
+  position: absolute;
+  z-index: 1;
+  margin-left: auto;
+  max-width: 100%;
+
+}
+.ol-mouse-position{
+  bottom: 10px;
+  top: auto;
+  color: black;
+  background: rgba(255,255,255, 0.5);
+  padding: 5px;
+  border-radius: 10px;
+  right: 0.5em;
+  font-size: 0.9em;
+}
+.ol-attribution{
+  display: none;
+}
+
+.dropdown-button {
+  background-color: #ffffff;
+  color: gray;
+  padding: 16px;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  border-radius: 4px 4px 0px 0px;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  border-top: 1px;
+  border-color: gray;
+  width: 100%;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.4);
+  z-index: 1;
+  padding: 0px 20px;
+  overflow: auto;
+  max-height: 350px;
+  border-radius: 0px 0px 8px 8px;
+}
+
+.break {
+  flex-basis: 100%;
+  height: 0;
+}
+
+.list-item-layer{
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  padding: 1rem;
+
+}
+.info-item{
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  margin-top:10px;
+
+}
+
+.list-item-layer:hover{
+  background-color: rgb(243, 243, 243);
+}
+
+.item-title{
+  width: 80%;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+.drag{
+  cursor:move;
+}
+.control-label{
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 1.0em;
+  overflow: hidden;
+}
+
+.ol-popup {
+  position: absolute;
+  /* top: -30px; */
+  background-color: white;
+  /*--webkit-filter: drop-shadow(0 1px 4px rgba(0,0,0,0.2));*/
+  filter: drop-shadow(0 1px 4px rgba(0,0,0,0.2));
+  padding: 15px;
+  border-radius: 10px;
+  border: 1px solid #cccccc;
+  bottom: 12px;
+  left: -50px;
+  min-width: 180px;
+}
+
+.ol-popup:after, .ol-popup:before {
+  top: 100%;
+  border: solid transparent;
+  content: " ";
+  height: 0;
+  width: 0;
+  position: absolute;
+  pointer-events: none;
+}
+
+.ol-popup:after {
+  border-top-color: white;
+  border-width: 10px;
+  left: 48px;
+  margin-left: -10px;
+}
+
+.ol-popup:before {
+  border-top-color: #cccccc;
+  border-width: 11px;
+  left: 48px;
+  margin-left: -11px;
+}
+.opacity{
+  cursor: pointer;
+  width: 30%;
+}
+::ng-deep .ol-zoom{
+  margin-top:50px;
+}
+
+::ng-deep .ol-zoomslider {
+  margin-top:50px;
+}
+
+.ol-zoomslider {
+  top:5.5em;
+  right: 0.5em;
+  left: unset;
+}
+.ol-zoom .ol-zoom-out {
+  margin-top: 13.5em;
+}
+
+#map-popup-content{
+  margin-top: 10px;
+  max-height: 200px;
+  overflow: auto;
+}
+.ol-popup-closer {
+  text-decoration: none;
+  position: absolute;
+  top: 2px;
+  right: 8px;
+  cursor: pointer;
+}
+.ol-popup-closer:after {
+  content: "✖";
+}
+
+
+
+/*basemap*/
+.base-map-container{
+  display: flex;
+  position: absolute;
+  /* z-index: 99999; */
+  top: 80px;
+  right: 0.5em;
+
+}
+
+.btn-base-map{
+  padding: 0.5rem 1.0rem;
+  border: none;
+  outline: none;
+  background-color: white;
+  color: gray;
+  border-radius: 3px;
+  cursor: pointer;
+}
+.btn-base-map:hover{
+  border: 1px solid #d0d0d0;
+  margin:-1px;
+}
+
+.btn-base-map.active{
+  box-shadow: 0 0 0 0.125rem rgba(13, 128, 250, 0.5);
+
+}
+
+.drop-base-map-wrapper{
+  position: relative;
+  display: flex;
+  flex-direction: row-reverse;
+}
+
+.drop-base-map-menu{
+  display: none;
+  position: absolute;
+  white-space: nowrap;
+  border-radius: 25px;
+}
+
+.drop-base-map-menu.active{
+  display: block;
+  background-color: white;
+  position: absolute;
+  white-space: nowrap;
+  border-radius: 25px;
+}
+
+.drop-base-mapdown{
+  top: 100%;
+  margin-top: 0.125rem;
+}
+
+.drop-base-mapup{
+  bottom: 100%;
+  margin-bottom: 0.125rem;
+}
+
+
+.drop-base-mapleft{
+  right: 100%;
+  top: 0%;
+  margin-right: 0.125rem;
+}
+
+.drop-base-mapright{
+  left: 100%;
+  top: 0%;
+  margin-left: 0.125rem;
+}
+
+.drop-base-map-menu a{
+  display: block;
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+  color: #343434;
+}
+
+.layer-icon {
+  content: url('./assets/layers-icon.svg');
+  width: 30px;
+  height: 30px;
+}
+.compass{
+  bottom:40px;
+  width: 60px;
+  right: 0.5em;
+  top:auto!important;
+}
+
+.ol-compassctrl{
+  bottom:40px;
+  width: 60px;
+  height: 60px;
+  top:auto !important;
+}
+.legend{
+  display: inline-block !important;
+  width: 350px;
+  position: absolute;
+  z-index: 9999;
+  bottom: 50px;
+}
+
+
+/* You can add global styles to this file, and also import other style files */
+html {
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  font-family: "Inter", system-ui; }
+
+@supports (font-variation-settings: normal) {
+  html { font-family: "Inter var", system-ui; }
+}
+
+body {
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  background-color: #F9FAFB;
+}
+#imagemgif{
+  content:url(assets/info-use-map.gif)
+}
