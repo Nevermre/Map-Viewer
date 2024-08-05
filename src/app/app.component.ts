@@ -68,7 +68,7 @@ export class AppComponent implements OnInit, AfterContentChecked {
             ],
             "rasters":[
               {
-              "title": "Uso do Solo - Mapbiomas",
+              "title": "Uso do Solo - Mapbiomas ",
               "layerUrl": "https://geoserverdw.apps.geoapplications.net/geoserver/wms",
               "layerIdentifier": [
                 {"description":"2021","identifier":"workspace_mit:Uso do Solo - 2021 - Mapbiomas"},
